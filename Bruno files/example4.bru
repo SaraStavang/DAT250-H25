@@ -1,0 +1,27 @@
+meta {
+  name: example4
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/api/polls?username=alice
+  body: json
+  auth: inherit
+}
+
+params:query {
+  username: alice
+}
+
+body:json {
+  {
+    "question": "Favorite color?",
+    "isPublic": true,
+    "validUntil": "2030-01-01"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

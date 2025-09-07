@@ -1,0 +1,23 @@
+meta {
+  name: Example7
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:8080/api/polls/2/votes
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  { "username": "bob", "optionId": 1 }
+}
+
+settings {
+  encodeUrl: true
+}
