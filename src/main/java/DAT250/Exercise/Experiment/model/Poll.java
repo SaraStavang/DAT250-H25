@@ -1,9 +1,14 @@
 package DAT250.Exercise.Experiment.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Poll {
     private Long id;
     private String question;
@@ -13,9 +18,11 @@ public class Poll {
     private boolean singleVotePerUser;
 
 
+    @JsonIdentityReference(alwaysAsId = true)
     private User creator;
     private List<VoteOption> options = new ArrayList<>();
     private List<Vote> votes = new ArrayList<>();
+
 
     public Poll() {}
 

@@ -1,7 +1,11 @@
 package DAT250.Exercise.Experiment.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.time.Instant;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Vote {
     private Long id;
     private Instant publishedAt;
@@ -25,4 +29,5 @@ public class Vote {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
 }
