@@ -29,7 +29,6 @@ public class UserController {
         this.pollManager = pollManager;
     }
 
-    // ===== DTOs =====
     public static class CreateUserRequest {
         public String username;
         public String email;
@@ -49,8 +48,6 @@ public class UserController {
         }
     }
 
-    // ===== Endpoints =====
-
     @PostMapping
     public ResponseEntity<UserDto> createUser(@RequestBody CreateUserRequest body) {
         User created = pollManager.createUser(body.username, body.email);
@@ -59,7 +56,6 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getAllUsers() {
-        // PollManager#getUsers returns List<User>
         return pollManager.getUsers().stream().map(UserDto::of).collect(Collectors.toList());
     }
 
@@ -72,7 +68,6 @@ public class UserController {
         }
     }
 
-    // Nice-to-have: map duplicate-username errors to 400 with a message
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> badRequest(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));

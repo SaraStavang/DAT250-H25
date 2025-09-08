@@ -15,17 +15,13 @@ import java.util.*;
 @Component
 public class PollManager {
 
-    // username -> User
     private final Map<String, User> users = new HashMap<>();
-    // pollId -> Poll
     private final Map<Long, Poll> polls = new HashMap<>();
 
     private long nextUserId = 1;
     private long nextPollId = 1;
     private long nextOptionId = 1;
     private long nextVoteId = 1;
-
-    // --- USERS ---
 
     public User createUser(String username, String email) {
         if (users.containsKey(username)) {
@@ -49,8 +45,6 @@ public class PollManager {
         return u;
     }
 
-    // --- POLLS ---
-
     public List<Poll> getPolls() {
         return new ArrayList<>(polls.values());
     }
@@ -70,7 +64,6 @@ public class PollManager {
         p.setPublic(isPublic);
         p.setPublishedAt(Instant.now());
 
-        // LocalDate -> Instant (set to 23:59:59 UTC of that day)
         if (validUntil != null) {
             Instant until = validUntil.atTime(23, 59, 59)
                     .atZone(ZoneOffset.UTC)
@@ -79,8 +72,6 @@ public class PollManager {
         }
 
         p.setCreator(creator);
-
-        // initialize collections
         p.setOptions(new ArrayList<>());
         p.setVotes(new ArrayList<>());
 
@@ -109,13 +100,10 @@ public class PollManager {
         return new ArrayList<>(getPoll(pollId).getOptions());
     }
 
-    // --- VOTES ---
-
     public Vote castVote(String username, Long pollId, Long optionId) {
         User voter = getUser(username);
         Poll p = getPoll(pollId);
 
-        // find option inside this poll
         VoteOption opt = p.getOptions().stream()
                 .filter(o -> o.getId().equals(optionId))
                 .findFirst()
@@ -135,7 +123,6 @@ public class PollManager {
         return v;
     }
 
-    /** Change an existing vote to a different option within the same poll. */
     public Vote changeVote(Long voteId, Long newOptionId) {
         Vote target = null;
         Poll owner = null;
@@ -159,7 +146,6 @@ public class PollManager {
         if (opt.isEmpty()) {
             throw new NoSuchElementException("Option " + newOptionId + " not in poll " + owner.getId());
         }
-
         target.setVoteOption(opt.get());
         return target;
     }
@@ -174,17 +160,13 @@ public class PollManager {
         return all;
     }
 
-    // --- DELETE ---
-
     public void deletePoll(Long pollId) {
         Poll p = polls.remove(pollId);
         if (p == null) return;
 
-        // unlink from creator (if you track created polls)
         if (p.getCreator() != null && p.getCreator().getCreatedPolls() != null) {
             p.getCreator().getCreatedPolls().remove(p);
         }
-        // options and votes live inside the poll; clearing is enough
         p.getVotes().clear();
         p.getOptions().clear();
     }

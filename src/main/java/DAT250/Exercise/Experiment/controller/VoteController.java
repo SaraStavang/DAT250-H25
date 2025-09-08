@@ -22,7 +22,6 @@ public class VoteController {
         this.pollManager = pollManager;
     }
 
-    // ===== DTOs =====
     public static class CastVoteRequest {
         public String username;
         public Long optionId;
@@ -59,7 +58,6 @@ public class VoteController {
         }
     }
 
-    // Return [] if the poll doesn't exist (so your scenario "list votes -> empty" after delete works)
     @GetMapping
     public ResponseEntity<List<VoteDto>> list(@PathVariable Long pollId) {
         try {
