@@ -1,8 +1,10 @@
 package DAT250.Exercise.Experiment.controller;
 
 import DAT250.Exercise.Experiment.PollManager;
+import DAT250.Exercise.Experiment.PollResponse;
 import DAT250.Exercise.Experiment.model.Poll;
 import DAT250.Exercise.Experiment.model.VoteOption;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,7 @@ public class PollController {
     }
 
     public static class CreateOptionRequest {
+        @JsonAlias({ "text", "name" })
         public String caption;
         public int presentationOrder;
     }
@@ -49,9 +52,13 @@ public class PollController {
     }
 
     @GetMapping("/{pollId}")
-    public ResponseEntity<Poll> getPoll(@PathVariable Long pollId) {
-        try { return ResponseEntity.ok(pollManager.getPoll(pollId)); }
-        catch (NoSuchElementException e) { return ResponseEntity.notFound().build(); }
+    public ResponseEntity<PollResponse> getPoll(@PathVariable Long pollId) {
+        try {
+            Poll poll = pollManager.getPoll(pollId);
+            return ResponseEntity.ok(new PollResponse(poll));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/{pollId}/options")
