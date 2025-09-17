@@ -35,13 +35,14 @@ public class VoteController {
         public Long optionId;
         public Long userId;
         public Instant publishedAt;
+
         public static VoteDto of(Vote v) {
             var d = new VoteDto();
             d.id = v.getId();
             d.pollId = v.getPoll() != null ? v.getPoll().getId() : null;
-            d.optionId = v.getVoteOption() != null ? v.getVoteOption().getId() : null;
-            d.userId = v.getUser() != null ? v.getUser().getId() : null;
-            d.publishedAt = v.getPublishedAt();
+            d.optionId = v.getVotesOn() != null ? v.getVotesOn().getId() : null;
+            d.userId = v.getVotedBy() != null ? v.getVotedBy().getId() : null;
+            d.publishedAt = v.getPoll().getPublishedAt();
             return d;
         }
     }

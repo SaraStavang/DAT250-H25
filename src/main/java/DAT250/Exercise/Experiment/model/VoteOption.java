@@ -1,33 +1,42 @@
 package DAT250.Exercise.Experiment.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-public class VoteOption {
+@Entity
+@Table(name = "vote_options")
+public class
+VoteOption {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String caption;
+
+    @Column(nullable = false)
     private int presentationOrder;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "poll_id", nullable = false)
     private Poll poll;
 
-    public VoteOption(){}
+    @OneToMany(mappedBy = "votesOn", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Vote> votes = new LinkedHashSet<>();
 
-    public VoteOption(Long id, String caption, int presentationOrder, Poll poll) {
-        this.id = id;
+    protected VoteOption() {}
+
+    public VoteOption(Poll poll, String caption, int presentationOrder) {
+        this.poll = poll;
         this.caption = caption;
         this.presentationOrder = presentationOrder;
-        this.poll = poll;
     }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getCaption() { return caption; }
-    public void setCaption(String caption) { this.caption = caption; }
-
     public int getPresentationOrder() { return presentationOrder; }
-    public void setPresentationOrder(int presentationOrder) { this.presentationOrder = presentationOrder; }
-
     public Poll getPoll() { return poll; }
-    public void setPoll(Poll poll) { this.poll = poll; }
+    public Set<Vote> getVotes() { return votes; }
 }

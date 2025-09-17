@@ -1,16 +1,15 @@
 package DAT250.Exercise.Experiment;
-
 import DAT250.Exercise.Experiment.model.Poll;
 import DAT250.Exercise.Experiment.model.User;
 import DAT250.Exercise.Experiment.model.Vote;
 import DAT250.Exercise.Experiment.model.VoteOption;
 import org.springframework.stereotype.Component;
-
+import java.util.LinkedHashSet;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.*;
-
+import java.util.Objects;
 
 @Component
 public class PollManager {
@@ -27,7 +26,8 @@ public class PollManager {
         if (users.containsKey(username)) {
             throw new IllegalArgumentException("Username already exists: " + username);
         }
-        User u = new User();
+
+        User u = new User(username,email);
         u.setId(nextUserId++);
         u.setUsername(username);
         u.setEmail(email);
@@ -35,9 +35,7 @@ public class PollManager {
         return u;
     }
 
-    public List<User> getUsers() {
-        return new ArrayList<>(users.values());
-    }
+    public List<User> getUsers() { return new ArrayList<>(users.values()); }
 
     public User getUser(String username) {
         User u = users.get(username);
@@ -45,9 +43,7 @@ public class PollManager {
         return u;
     }
 
-    public List<Poll> getPolls() {
-        return new ArrayList<>(polls.values());
-    }
+    public List<Poll> getPolls() { return new ArrayList<>(polls.values()); }
 
     public Poll getPoll(Long pollId) {
         Poll p = polls.get(pollId);
@@ -58,9 +54,9 @@ public class PollManager {
     public Poll createPoll(String creatorUsername, String question, boolean isPublic, LocalDate validUntil) {
         User creator = getUser(creatorUsername);
 
-        Poll p = new Poll();
+        Poll p = creator.createPoll(question);
+
         p.setId(nextPollId++);
-        p.setQuestion(question);
         p.setPublic(isPublic);
         p.setPublishedAt(Instant.now());
 
@@ -71,29 +67,14 @@ public class PollManager {
             p.setValidUntil(until);
         }
 
-        p.setCreator(creator);
-        p.setOptions(new ArrayList<>());
-        p.setVotes(new ArrayList<>());
+        if (creator.getCreated() == null) {
+            creator.setCreated(new LinkedHashSet<>());
+        }
+
+        creator.getCreated().add(p);
 
         polls.put(p.getId(), p);
-
-        if (creator.getCreatedPolls() == null) {
-            creator.setCreatedPolls(new ArrayList<>());
-        }
-        creator.getCreatedPolls().add(p);
-
         return p;
-    }
-
-    public VoteOption addOption(Long pollId, String caption, int presentationOrder) {
-        Poll p = getPoll(pollId);
-        VoteOption o = new VoteOption();
-        o.setId(nextOptionId++);
-        o.setCaption(caption);
-        o.setPresentationOrder(presentationOrder);
-        o.setPoll(p);
-        p.getOptions().add(o);
-        return o;
     }
 
     public List<VoteOption> getOptions(Long pollId) {
@@ -109,15 +90,12 @@ public class PollManager {
                 .findFirst()
                 .orElseThrow(() -> new NoSuchElementException("Option " + optionId + " not in poll " + pollId));
 
-        Vote v = new Vote();
+        Vote v = new Vote(voter, opt);
         v.setId(nextVoteId++);
         v.setPublishedAt(Instant.now());
-        v.setVoteOption(opt);
-        v.setUser(voter);
-        v.setPoll(p);
 
         p.getVotes().add(v);
-        if (voter.getVotes() == null) voter.setVotes(new ArrayList<>());
+        if (voter.getVotes() == null){voter.setVotes(new LinkedHashSet<>());}
         voter.getVotes().add(v);
 
         return v;
@@ -127,29 +105,38 @@ public class PollManager {
         Vote target = null;
         Poll owner = null;
 
+        // find the vote and its poll
+        outer:
         for (Poll p : polls.values()) {
             for (Vote v : p.getVotes()) {
-                if (v.getId().equals(voteId)) {
+                if (Objects.equals(v.getId(), voteId)) {
                     target = v;
                     owner = p;
-                    break;
+                    break outer;
                 }
             }
-            if (target != null) break;
         }
-        if (target == null) throw new NoSuchElementException("Vote not found: " + voteId);
-
-        var opt = owner.getOptions().stream()
-                .filter(o -> o.getId().equals(newOptionId))
-                .findFirst();
-
-        if (opt.isEmpty()) {
-            throw new NoSuchElementException("Option " + newOptionId + " not in poll " + owner.getId());
+        if (target == null) {
+            throw new NoSuchElementException("Vote not found: " + voteId);
         }
-        target.setVoteOption(opt.get());
+
+        // find the new option in the same poll
+        VoteOption opt = null;
+        for (VoteOption o : owner.getOptions()) {
+            if (Objects.equals(o.getId(), newOptionId)) {
+                opt = o;
+                break;
+            }
+        }
+        if (opt == null) {
+            throw new NoSuchElementException(
+                    "Option " + newOptionId + " not in poll " + owner.getId()
+            );
+        }
+
+        target.setVotesOn(opt);
         return target;
     }
-
     public List<Vote> getVotesForPoll(Long pollId) {
         return new ArrayList<>(getPoll(pollId).getVotes());
     }
@@ -164,10 +151,27 @@ public class PollManager {
         Poll p = polls.remove(pollId);
         if (p == null) return;
 
-        if (p.getCreator() != null && p.getCreator().getCreatedPolls() != null) {
-            p.getCreator().getCreatedPolls().remove(p);
+        if (p.getCreatedBy() != null && p.getCreatedBy().getCreated() != null) {
+            p.getCreatedBy().getCreated().remove(p);
         }
         p.getVotes().clear();
         p.getOptions().clear();
+    }
+
+    public VoteOption addOption(Long pollId, String caption, int presentationOrder) {
+        Poll p = getPoll(pollId);
+
+
+        int expectedOrder = p.getOptions().size();
+        if (presentationOrder != expectedOrder) {
+            throw new IllegalArgumentException(
+                    "presentationOrder must be " + expectedOrder + " for poll " + p.getId());
+        }
+
+        VoteOption opt = p.addVoteOption(caption);
+
+        opt.setId(nextOptionId++);
+
+        return opt;
     }
 }

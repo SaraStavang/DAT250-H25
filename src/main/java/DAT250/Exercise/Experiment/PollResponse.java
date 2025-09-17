@@ -4,6 +4,7 @@ import DAT250.Exercise.Experiment.model.Poll;
 import DAT250.Exercise.Experiment.model.VoteOption;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PollResponse {
     public Long id;
@@ -28,7 +29,7 @@ public class PollResponse {
             this.id = opt.getId();
             this.caption = opt.getCaption();
             this.votes = (int) poll.getVotes().stream()
-                    .filter(v -> v.getVoteOption().getId().equals(opt.getId()))
+                    .filter(v -> Objects.equals(v.getVotesOn().getId(), opt.getId()))
                     .count();
         }
 
