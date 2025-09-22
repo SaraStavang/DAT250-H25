@@ -1,6 +1,6 @@
-Links:
-[Backend source](./src/main/java)
-[Application class](./src/main/java/com/example/DemoApplication.java)
+- Build file: [`build.gradle.kts`](./build.gradle.kts)
+- App config: [`application.properties`](./src/main/resources/application.properties)
+- Test: [`PollsTest.java`](./src/test/java/DAT250/Exercise/Experiment/polls/PollsTest.java)
 
 When I started integrating JPA into my project, I ran into several problems.
 
