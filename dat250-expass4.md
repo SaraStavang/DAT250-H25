@@ -20,3 +20,5 @@ Logging in with JDBC URL jdbc:h2:mem:polls, user sa, and no password gave me acc
 <img width="1426" height="884" alt="Skjermbilde 2025-09-21 kl  09 10 51" src="https://github.com/user-attachments/assets/f91cc87a-40cf-4fe1-a43b-e8517e71077c" />
 <img width="1115" height="712" alt="Skjermbilde 2025-09-21 kl  13 54 55" src="https://github.com/user-attachments/assets/35890865-7573-4a05-9858-fb5d16c7e93f" />
 <img width="516" height="359" alt="Skjermbilde 2025-09-21 kl  13 59 31" src="https://github.com/user-attachments/assets/9a5b64d8-7970-4909-a8cc-7452d54c6c63" />
+<img width="803" height="398" alt="Skjermbilde 2025-09-22 kl  19 35 07" src="https://github.com/user-attachments/assets/6fd96d71-cc16-497b-a909-7888fef42b4e" />
+
