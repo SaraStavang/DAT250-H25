@@ -1,3 +1,7 @@
+Links:
+[Backend source](./src/main/java)
+[Application class](./src/main/java/com/example/DemoApplication.java)
+
 When I started integrating JPA into my project, I ran into several problems.
 
 At first, my tests were green because I was manually configuring an EntityManagerFactory with H2, but when I tried to run the Spring Boot application, Hibernate did not start. 
