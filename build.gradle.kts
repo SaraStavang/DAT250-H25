@@ -12,6 +12,7 @@ dependencies {
     runtimeOnly("com.h2database:h2:2.3.232")
     implementation("org.springframework.boot:spring-boot-starter-web")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("redis.clients:jedis:6.2.0")
 }
 
 tasks.withType<Test> {
